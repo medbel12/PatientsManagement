@@ -1,38 +1,152 @@
-Partie 1 :
+- Création de l'entité JPA Patient :
 
- - Création de l'interface IDao avec une méthode getData :
+   package ma.enset.patientsManagement.entities;
 
-    Nous avons commencé par définir une interface nommée IDao, qui expose une méthode getData. Cette interface servira de contrat pour toutes les classes qui implémentent la logique 
-    d'accès aux données.
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
- -Implémentation de l'interface IDao :
+import java.util.Date;
 
-    Ensuite, nous avons développé une classe DaoImpl qui implémente l'interface IDao. Cette classe contient la logique concrète pour récupérer la date à partir de la source de données, 
-    conformément au contrat défini dans IDao.
+@Entity
+@Data @NoArgsConstructor @AllArgsConstructor
+public class Patient {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 
- -Création de l'interface IMetier avec une méthode calcul :
+    private Long idPatient;
+    private String nom;
+    private Date dateNaissance;
+    private boolean malade;
+    private int score;
 
-    Nous avons également défini une interface IMetier avec une méthode calcul. Cette interface représente la couche métier de notre application et fournit un moyen d'effectuer des 
-    calculs sur les données.
+}
 
-  -Implémentation de l'interface IMetier avec un couplage faible :
 
-    Pour l'implémentation de IMetier, nous avons opté pour un couplage faible en utilisant le principe de l'inversion de contrôle (IoC). Cela nous permet de séparer la logique métier de 
-    son implémentation concrète, favorisant ainsi la modularité et la maintenabilité de notre code.
+ -Creaction de base de donnees MySql :
 
-  -Injection des dépendances :
+    server.port=8080
 
-    Nous avons exploré trois méthodes pour injecter les dépendances dans notre application :
+spring.datasource.url=jdbc:mysql://localhost:3306/Patients-db?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MariaDBDialect
 
-    Par instanciation statique : Les dépendances sont instanciées directement dans la classe utilisatrice.
+#spring.datasource.url=jdbc:h2:mem:patient-management
+spring.h2.console.enabled=true
 
-    Par instanciation dynamique : Les dépendances sont passées à la classe utilisatrice via son constructeur ou des méthodes d'injection.
 
-    En utilisant le Framework Spring : Nous avons utilisé le Framework Spring pour gérer l'injection des dépendances. Deux approches ont été abordées :
+ - l'interface PatientRepository basée sur Spring data :
 
-    Version XML : Les dépendances sont définies dans un fichier de configuration XML.
+   package ma.enset.patientsManagement.Repository;
 
-    Version annotations : Les dépendances sont définies à l'aide d'annotations dans le code source.
+import ma.enset.patientsManagement.entities.Patient;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-    Ces techniques d'injection de dépendances permettent de rendre notre code plus flexible, testable et facile à maintenir en réduisant le couplage entre les différentes parties de 
-    l'application.
+import java.util.List;
+
+public interface PatientRepository extends JpaRepository<Patient,Long> {
+
+    List<Patient> findByNomContains(String Keyword);
+
+    List<Patient> findByMalade(boolean malade);
+
+}
+
+
+  -Tester quelques opérations de gestion de patients :
+
+   package ma.enset.patientsManagement;
+
+import ma.enset.patientsManagement.Repository.PatientRepository;
+import ma.enset.patientsManagement.entities.Patient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.util.List;
+
+@SpringBootApplication
+public class PatientsManagement implements CommandLineRunner {
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    public static void main(String[] args) {
+        SpringApplication.run(PatientsManagement.class, args);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+
+//        patientRepository.save(new Patient(null,"karim",new Date(2002,07,26),true,50));
+//        patientRepository.save(new Patient(null,"ibrahim",new Date(1992,06,12),false,50));
+//        patientRepository.save(new Patient(null,"anouar",new Date(2002,05,19),true,50));
+//        patientRepository.save(new Patient(null,"bilal",new Date(2007,07,28),false,50));
+
+
+        System.out.println("Liste des patients");
+        List<Patient> patient1 = patientRepository.findAll();
+        patient1.forEach(p1 -> {
+            System.out.println(p1.toString());
+        });
+
+        System.out.println("_______________________");
+
+        System.out.println("recuperee un patient par son Id");
+        Patient patient=patientRepository.findById(Long.valueOf(1)).get();
+        System.out.println(patient.getNom()+" "+patient.getScore()+" "+patient.isMalade()+
+                " "+patient.getDateNaissance());
+
+        System.out.println("_____________________");
+
+        System.out.println("La liste des personnes malades");
+        List<Patient> patient2=patientRepository.findByMalade(true);
+        patient2.forEach(p2 ->{
+            System.out.println(p2.getNom()+" "+p2.getScore()+" "+p2.isMalade()+" "+p2.getDateNaissance());
+        } );
+
+        System.out.println("_____________________");
+
+        System.out.println("chrcher un patient par une mot clee");
+        List<Patient> patient3=patientRepository.findByNomContains("r");
+        patient3.forEach(p3 -> {
+            System.out.println(p3);
+        });
+
+        System.out.println("_____________________");
+
+
+        System.out.println("modifier un patient");
+        Patient p=patientRepository.findById(Long.valueOf(1)).get();
+        p.setScore(56);
+        p.setMalade(false);
+        System.out.println(p.getNom()+" "+p.getScore()+" "+p.isMalade()+" "+p.getDateNaissance());
+        patientRepository.save(p);
+
+        System.out.println("_____________________");
+
+        System.out.println("Supprimer un patient par son Id");
+        patientRepository.deleteById(Long.valueOf(4));
+        patient1.forEach(p1 -> {
+            System.out.println(p1.toString());
+        });
+
+        System.out.println("_____________________");
+
+
+
+
+
+
+
+
+
+
+    }
+}
+
+
+  
