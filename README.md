@@ -1,6 +1,6 @@
 - Création de l'entité JPA Patient :
 
-   package ma.enset.patientsManagement.entities;
+package ma.enset.patientsManagement.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,7 +25,7 @@ public class Patient {
 
  -Creaction de base de donnees MySql :
 
-    server.port=8080
+server.port=8080
 
 spring.datasource.url=jdbc:mysql://localhost:3306/Patients-db?createDatabaseIfNotExist=true
 spring.datasource.username=root
@@ -39,7 +39,7 @@ spring.h2.console.enabled=true
 
  - l'interface PatientRepository basée sur Spring data :
 
-   package ma.enset.patientsManagement.Repository;
+package ma.enset.patientsManagement.Repository;
 
 import ma.enset.patientsManagement.entities.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -57,7 +57,7 @@ public interface PatientRepository extends JpaRepository<Patient,Long> {
 
   -Tester quelques opérations de gestion de patients :
 
-   package ma.enset.patientsManagement;
+package ma.enset.patientsManagement;
 
 import ma.enset.patientsManagement.Repository.PatientRepository;
 import ma.enset.patientsManagement.entities.Patient;
