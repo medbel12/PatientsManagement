@@ -85,7 +85,7 @@
     //        patientRepository.save(new Patient(null,"karim",new Date(2002,07,26),true,50));
     //        patientRepository.save(new Patient(null,"ibrahim",new Date(1992,06,12),false,50));
     //        patientRepository.save(new Patient(null,"anouar",new Date(2002,05,19),true,50));
-   //        patientRepository.save(new Patient(null,"bilal",new Date(2007,07,28),false,50));
+    //        patientRepository.save(new Patient(null,"bilal",new Date(2007,07,28),false,50));
 
 
         System.out.println("Liste des patients");
